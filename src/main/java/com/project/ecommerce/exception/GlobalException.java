@@ -1,38 +1,56 @@
 package com.project.ecommerce.exception;
 
-import com.project.ecommerce.dto.Response;
+import com.project.ecommerce.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.util.HashMap;
+import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalException {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response> handleGeneralException(Exception e) {
-        Response response = Response.builder()
+    public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception e) {
+        ApiResponse<Object> response = ApiResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message("An unexpected error occurred: " + e.getMessage())
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Response> handleNotFoundException(NotFoundException e) {
-        Response response = Response.builder()
+    public ResponseEntity<ApiResponse<Object>> handleNotFoundException(NotFoundException e) {
+        ApiResponse<Object> response = ApiResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Response> handleInvalidCredentialsException(InvalidCredentialsException e) {
-        Response response = Response.builder()
+    public ResponseEntity<ApiResponse<Object>> handleInvalidCredentialsException(InvalidCredentialsException e) {
+        ApiResponse<Object> response = ApiResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(e.getMessage())
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException e) {
+        Map<String, String> errors = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), error.getDefaultMessage());
+        });
+
+        ApiResponse<Object> response = ApiResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Validation failed")
+                .data(errors)
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
