@@ -8,22 +8,26 @@ import com.project.ecommerce.entity.User;
 import com.project.ecommerce.enums.UserRole;
 import com.project.ecommerce.exception.NotFoundException;
 import com.project.ecommerce.repository.UserRepository;
+import com.project.ecommerce.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
+    private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Email is incorrect"));
         if (!user.getPassword().equals(request.getPassword())) {
             throw new NotFoundException("Password is incorrect");
         }
+        String token = jwtService.generateToken(user);
         return AuthResponse.builder()
-//                .token()
+                .token(token)
                 .role(user.getRole().name())
                 .build();
     }
@@ -41,7 +45,7 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .role(UserRole.USER)
                 .build();
         userRepository.save(user);

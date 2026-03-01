@@ -1,6 +1,5 @@
 package com.project.ecommerce.service;
 
-import com.project.ecommerce.dto.response.RegisterResponse;
 import com.project.ecommerce.dto.response.UserResponse;
 import com.project.ecommerce.entity.User;
 import com.project.ecommerce.exception.NotFoundException;
