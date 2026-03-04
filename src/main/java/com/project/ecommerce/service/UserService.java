@@ -30,7 +30,7 @@ public class UserService {
     }
 
     public Page<UserResponse> getAllUser(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
         Page<User> users = userRepository.findAll(pageable);
         return users.map(user -> UserResponse.builder()
                 .id(user.getId())
