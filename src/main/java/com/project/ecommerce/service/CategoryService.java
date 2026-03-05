@@ -52,4 +52,23 @@ public class CategoryService {
                 .createdAt(category.getCreatedAt())
                 .build();
     }
+
+    public CategoryResponse updateCategory(Long categoryId, CategoryRequest request) {
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new InvalidCredentialsException("Category name already exists");
+        }
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category not found"));
+        category.setName(request.getName());
+        categoryRepository.save(category);
+        return CategoryResponse.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .createdAt(category.getCreatedAt())
+                .build();
+    }
+
+    public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category not found"));
+        categoryRepository.delete(category);
+    }
 }

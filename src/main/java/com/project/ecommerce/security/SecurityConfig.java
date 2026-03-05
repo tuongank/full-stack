@@ -1,5 +1,7 @@
 package com.project.ecommerce.security;
 
+import com.project.ecommerce.configuration.AccessDenied;
+import com.project.ecommerce.configuration.AuthEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final AccessDenied accessDenied;
+    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,11 +31,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("/auth/**").permitAll()
+                        request.requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                                 .requestMatchers("/users/by-email").hasAuthority("ADMIN")
                                 .anyRequest().authenticated())
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // validate token for every request and handle exceptions
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(accessDenied))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
