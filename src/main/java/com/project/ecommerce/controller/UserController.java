@@ -2,11 +2,10 @@ package com.project.ecommerce.controller;
 
 import com.project.ecommerce.dto.response.ApiResponse;
 import com.project.ecommerce.dto.response.UserResponse;
+import com.project.ecommerce.entity.User;
 import com.project.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +42,17 @@ public class UserController {
                 .totalElements(userPage.getTotalElements())
                 .build();
         return ResponseEntity.ok(response);
+    }
 
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<User>> getLoggedInUser() {
+        User user = userService.getLoggedInUser();
+        ApiResponse<User> response = ApiResponse.<User>builder()
+                .status(200)
+                .message("Logged in user retrieved successfully")
+                .data(user)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 }

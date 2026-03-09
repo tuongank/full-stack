@@ -2,8 +2,6 @@ package com.project.ecommerce.entity;
 
 import com.project.ecommerce.enums.UserRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,19 +33,18 @@ public class User {
     @Column(nullable = false, unique = true, name = "phone_number")
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItemList;
+    private List<Order> orderList;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Address> address;
+    private List<Address> addressList;
 
     @Column(name = "created_date")
-    @Builder.Default
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime createdDate;
 
     @Column(name = "updated_date")
-    @Builder.Default
-    private LocalDateTime updatedDate = LocalDateTime.now();
+    private LocalDateTime updatedDate;
 }

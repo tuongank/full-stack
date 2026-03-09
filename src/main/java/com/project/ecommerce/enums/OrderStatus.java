@@ -1,5 +1,12 @@
 package com.project.ecommerce.enums;
 
 public enum OrderStatus {
-    AD
+    PENDING,
+    CONFIRMED,
+    SHIPPED,
+    DELIVERED,
+    CANCELLED,
+    RETURN_REQUESTED,
+    RETURNED,
+    REFUNDED
 }

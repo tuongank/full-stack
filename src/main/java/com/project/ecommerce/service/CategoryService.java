@@ -5,6 +5,7 @@ import com.project.ecommerce.dto.response.CategoryResponse;
 import com.project.ecommerce.entity.Category;
 import com.project.ecommerce.exception.InvalidCredentialsException;
 import com.project.ecommerce.exception.NotFoundException;
+import com.project.ecommerce.mapper.CategoryMapper;
 import com.project.ecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,10 +13,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.findByName(request.getName()).isPresent()) {
@@ -24,33 +28,22 @@ public class CategoryService {
 
         Category category = Category.builder()
                 .name(request.getName())
+                .createdAt(LocalDateTime.now())
                 .build();
         categoryRepository.save(category);
 
-        return CategoryResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .createdAt(category.getCreatedAt())
-                .build();
+        return categoryMapper.toCategoryResponse(category);
     }
 
     public Page<CategoryResponse> getAllCategory(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Category> categories = categoryRepository.findAll(pageable);
-        return categories.map(category -> CategoryResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .createdAt(category.getCreatedAt())
-                .build());
+        return categories.map(categoryMapper::toCategoryResponse);
     }
 
     public CategoryResponse getCategoryByName(String name) {
         Category category = categoryRepository.findByName(name).orElseThrow(() -> new NotFoundException("Category name not found"));
-        return CategoryResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .createdAt(category.getCreatedAt())
-                .build();
+        return categoryMapper.toCategoryResponse(category);
     }
 
     public CategoryResponse updateCategory(Long categoryId, CategoryRequest request) {
@@ -58,13 +51,10 @@ public class CategoryService {
             throw new InvalidCredentialsException("Category name already exists");
         }
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category not found"));
+
         category.setName(request.getName());
         categoryRepository.save(category);
-        return CategoryResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .createdAt(category.getCreatedAt())
-                .build();
+        return categoryMapper.toCategoryResponse(category);
     }
 
     public void deleteCategory(Long categoryId) {
