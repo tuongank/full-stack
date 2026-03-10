@@ -33,7 +33,7 @@ public class User {
     @Column(nullable = false, unique = true, name = "phone_number")
     private String phoneNumber;
 
-    @Column(nullable = false, length = 12)
+    @Column(length = 12)
     private String verificationCode;
 
     private LocalDateTime verificationExpiry;

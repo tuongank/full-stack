@@ -27,7 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailConfiguration  mailConfiguration;
-    private final VerificationCodeGenerator  verificationCodeGenerator;
+    private final VerificationCodeGenerator verificationCodeGenerator;
 
     @Value("${app.verification.code.length}")
     private int codeLength;
@@ -39,10 +39,24 @@ public class AuthService {
     private Long resendCode;
 
     public AuthResponse login(AuthRequest request) {
+        // Validate email and password presence
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new NotFoundException("Email and password are required");
+        }
+
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Email is incorrect"));
+
+        // Check if the password matches
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new NotFoundException("Password is incorrect");
         }
+
+        // Check if the account is verified
+        if (!Boolean.TRUE.equals(user.getVerified())) {
+            throw new IllegalStateException("Account not verified. Please verify your account before logging in.");
+        }
+
+        // Generate JWT token
         String token = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(token)
@@ -50,8 +64,11 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional
     public RegisterResponse register(RegisterRequest request) {
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new NotFoundException("Email and password are required");
+        }
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new NotFoundException("Email already exists");
         }
@@ -74,6 +91,7 @@ public class AuthService {
                 .build();
         userRepository.save(user);
 
+        // Send verification email
         mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
 
         return RegisterResponse.builder()
@@ -85,12 +103,15 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional
     public void  verifyRegistrationCode(String email, String code) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Email is incorrect"));
 
         if (Boolean.TRUE.equals(user.getVerified())) {
             throw new IllegalStateException("User already verified");
+        }
+
+        if (user.getVerificationAttempts() != null && user.getVerificationAttempts() >= 5) {
+            throw new IllegalStateException("Too many failed attempts. Please request a new code.");
         }
 
         if (user.getVerificationCode() == null || user.getVerificationExpiry() == null) {
@@ -102,7 +123,8 @@ public class AuthService {
         }
 
         if (!user.getVerificationCode().equals(code)) {
-            user.setVerificationAttempts(user.getVerificationAttempts() + 1);
+            int attempts = user.getVerificationAttempts() != null ? user.getVerificationAttempts() : 0;
+            user.setVerificationAttempts(attempts + 1);
             userRepository.save(user);
             throw new IllegalStateException("Invalid verification code");
         }
@@ -123,16 +145,19 @@ public class AuthService {
             throw new IllegalStateException("Account already verified");
         }
 
-        if (user.getLastVerificationSentAt() != null &&
-                Duration.between(user.getLastVerificationSentAt(), LocalDateTime.now()).getSeconds() < resendCode) {
-            long wait = resendCode - Duration.between(user.getLastVerificationSentAt(), LocalDateTime.now()).getSeconds();
-            throw new IllegalStateException("Please try again in " + wait + " seconds");
+        if (user.getLastVerificationSentAt() != null) {
+            long passed = Duration.between(user.getLastVerificationSentAt(), LocalDateTime.now()).getSeconds();
+            if (passed < resendCode) {
+                long wait = resendCode - passed;
+                throw new IllegalStateException("Please try again in " + wait + " seconds");
+            }
         }
 
         String code = verificationCodeGenerator.generateVerificationCode(codeLength);
         user.setVerificationCode(code);
         user.setVerificationExpiry(LocalDateTime.now().plusMinutes(expiryMinutes));
         user.setLastVerificationSentAt(LocalDateTime.now());
+        user.setVerificationAttempts(0);
         userRepository.save(user);
 
         mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
