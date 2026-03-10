@@ -33,6 +33,14 @@ public class User {
     @Column(nullable = false, unique = true, name = "phone_number")
     private String phoneNumber;
 
+    @Column(nullable = false, length = 12)
+    private String verificationCode;
+
+    private LocalDateTime verificationExpiry;
+    private Boolean verified;
+    private Integer verificationAttempts;
+    private LocalDateTime lastVerificationSentAt;
+
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
@@ -47,4 +55,16 @@ public class User {
 
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
+    @PrePersist
+    void prePersist() {
+        createdDate = LocalDateTime.now();
+        verified = false;
+        verificationAttempts = 0;
+    }
+
+    @PreUpdate
+    void preUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
 }
