@@ -4,6 +4,7 @@ import com.project.ecommerce.configuration.MailConfiguration;
 import com.project.ecommerce.configuration.VerificationCodeGenerator;
 import com.project.ecommerce.dto.request.AuthRequest;
 import com.project.ecommerce.dto.request.RegisterRequest;
+import com.project.ecommerce.dto.request.VerifyCodeRequest;
 import com.project.ecommerce.dto.response.AuthResponse;
 import com.project.ecommerce.dto.response.RegisterResponse;
 import com.project.ecommerce.entity.User;
@@ -39,12 +40,8 @@ public class AuthService {
     private Long resendCode;
 
     public AuthResponse login(AuthRequest request) {
-        // Validate email and password presence
-        if (request.getEmail() == null || request.getPassword() == null) {
-            throw new NotFoundException("Email and password are required");
-        }
-
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Email is incorrect"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("Email is incorrect"));
 
         // Check if the password matches
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -65,10 +62,6 @@ public class AuthService {
     }
 
     public RegisterResponse register(RegisterRequest request) {
-        if (request.getEmail() == null || request.getPassword() == null) {
-            throw new NotFoundException("Email and password are required");
-        }
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new NotFoundException("Email already exists");
         }
@@ -103,8 +96,8 @@ public class AuthService {
                 .build();
     }
 
-    public void  verifyRegistrationCode(String email, String code) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Email is incorrect"));
+    public void verifyRegistrationCode(VerifyCodeRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Email is incorrect"));
 
         if (Boolean.TRUE.equals(user.getVerified())) {
             throw new IllegalStateException("User already verified");
@@ -122,7 +115,7 @@ public class AuthService {
             throw new IllegalStateException("Verification code expired");
         }
 
-        if (!user.getVerificationCode().equals(code)) {
+        if (!user.getVerificationCode().equals(request.getCode())) {
             int attempts = user.getVerificationAttempts() != null ? user.getVerificationAttempts() : 0;
             user.setVerificationAttempts(attempts + 1);
             userRepository.save(user);
