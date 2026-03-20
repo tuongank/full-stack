@@ -1,19 +1,22 @@
 package com.project.ecommerce.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
+
 @Entity
-@Builder
+@Table(name = "addresses")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "addresses")
+@Builder
+@ToString(exclude = {"user", "orderList"})
+@EqualsAndHashCode(exclude = {"user", "orderList"})
 public class Address {
 
     @Id
@@ -33,6 +36,15 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Order> orderList = new ArrayList<>();
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }

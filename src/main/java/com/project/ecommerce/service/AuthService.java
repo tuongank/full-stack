@@ -12,8 +12,10 @@ import com.project.ecommerce.enums.UserRole;
 import com.project.ecommerce.exception.NotFoundException;
 import com.project.ecommerce.repository.UserRepository;
 import com.project.ecommerce.security.JwtService;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -61,6 +64,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new NotFoundException("Email already exists");
@@ -84,8 +88,12 @@ public class AuthService {
                 .build();
         userRepository.save(user);
 
-        // Send verification email
-        mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+        try {
+            // Send verification email
+            mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
 
         return RegisterResponse.builder()
                 .id(user.getId())

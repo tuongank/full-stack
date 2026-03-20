@@ -11,12 +11,23 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Builder
+@Table(name = "orders")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "orders")
+@Builder
+@ToString(exclude = {"user", "address", "orderItemList", "payment"})
+@EqualsAndHashCode(exclude = {"user", "address", "orderItemList", "payment"})
 public class Order {
 
     @Id
@@ -26,6 +37,7 @@ public class Order {
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,12 +49,17 @@ public class Order {
     private Address address;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItemList;
+    @Builder.Default
+    private List<OrderItem> orderItemList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Payment payment;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @PrePersist
+    void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }

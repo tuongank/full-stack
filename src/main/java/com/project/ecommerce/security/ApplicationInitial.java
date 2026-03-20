@@ -34,6 +34,7 @@ public class ApplicationInitial implements ApplicationRunner {
                     .phoneNumber("0000000000")
                     .password(passwordEncoder.encode(password))
                     .role(role)
+                    .verified(true)
                     .build();
             userRepository.save(user);
             log.info("Admin has been registered successfully");

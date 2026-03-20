@@ -1,10 +1,8 @@
 package com.project.ecommerce.entity;
 
+import com.project.ecommerce.enums.InteractionType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -14,33 +12,31 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "user_item_interactions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"product", "user"})
-@EqualsAndHashCode(exclude = {"product", "user"})
-public class Review {
+@ToString(exclude = {"user", "product"})
+@EqualsAndHashCode(exclude = {"user", "product"})
+public class UserItemInteraction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 1000)
-    private String content;
-
-    @Column(nullable = false)
-    private int rating;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InteractionType type;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
