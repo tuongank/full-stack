@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("address")
+@RequestMapping("/api/address")
 public class AddressController {
     private final AddressService addressService;
 

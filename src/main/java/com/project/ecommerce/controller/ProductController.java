@@ -3,6 +3,7 @@ package com.project.ecommerce.controller;
 import com.project.ecommerce.dto.response.ApiResponse;
 import com.project.ecommerce.dto.response.ProductResponse;
 import com.project.ecommerce.service.ProductService;
+import com.project.ecommerce.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,10 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
+    private final RecommendationService recommendationService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestParam Long categoryId,
@@ -107,6 +109,17 @@ public class ProductController {
                 .data(productResponsePage.getContent())
                 .totalPages(productResponsePage.getTotalPages())
                 .totalElements(productResponsePage.getTotalElements())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/recommendations/hybrid")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getHybridRecommendations(@RequestParam(defaultValue = "10") int limit) {
+        List<ProductResponse> products = recommendationService.getHybridRecommendations(limit);
+        ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
+                .status(200)
+                .message("Recommendations retrieved successfully")
+                .data(products)
                 .build();
         return ResponseEntity.ok(response);
     }

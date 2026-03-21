@@ -4,6 +4,7 @@ import com.project.ecommerce.configuration.MailConfiguration;
 import com.project.ecommerce.configuration.VerificationCodeGenerator;
 import com.project.ecommerce.dto.request.AuthRequest;
 import com.project.ecommerce.dto.request.RegisterRequest;
+import com.project.ecommerce.dto.request.ResetPasswordRequest;
 import com.project.ecommerce.dto.request.VerifyCodeRequest;
 import com.project.ecommerce.dto.response.AuthResponse;
 import com.project.ecommerce.dto.response.RegisterResponse;
@@ -138,7 +139,6 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    @Transactional
     public void resendVerificationCode(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
@@ -164,4 +164,46 @@ public class AuthService {
 
         mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
     }
+
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
+
+        String code = verificationCodeGenerator.generateVerificationCode(codeLength);
+        user.setVerificationCode(code);
+        user.setVerificationExpiry(LocalDateTime.now().plusMinutes(expiryMinutes));
+        user.setVerificationAttempts(0);
+
+        mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + request.getEmail()));
+
+        if (user.getVerificationAttempts() != null && user.getVerificationAttempts() >= 5) {
+            throw new IllegalStateException("Too many failed attempts. Please request a new code.");
+        }
+
+        if (user.getVerificationCode() == null || user.getVerificationExpiry() == null) {
+            throw new IllegalStateException("No verification code");
+        }
+
+        if (LocalDateTime.now().isAfter(user.getVerificationExpiry())) {
+            throw new IllegalStateException("Verification code expired");
+        }
+
+        if (!user.getVerificationCode().equals(request.getCode())) {
+            user.setVerificationAttempts(user.getVerificationAttempts() + 1);
+            throw new IllegalStateException("Mã xác thực không chính xác");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setVerificationCode(null);
+        user.setVerificationExpiry(null);
+        user.setVerificationAttempts(0);
+        userRepository.save(user);
+
+    }
+
 }

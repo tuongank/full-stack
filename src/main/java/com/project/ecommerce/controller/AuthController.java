@@ -1,5 +1,6 @@
 package com.project.ecommerce.controller;
 
+import com.project.ecommerce.dto.request.ResetPasswordRequest;
 import com.project.ecommerce.dto.request.VerifyCodeRequest;
 import com.project.ecommerce.dto.response.ApiResponse;
 import com.project.ecommerce.dto.request.AuthRequest;
@@ -56,6 +57,26 @@ public class AuthController {
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .status(200)
                 .message("Verification code resent successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestParam String email) {
+        authService.forgotPassword(email);
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(200)
+                .message("Password reset initiated successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(200)
+                .message("Password reset successful")
                 .build();
         return ResponseEntity.ok(response);
     }
