@@ -3,10 +3,7 @@ package com.project.ecommerce.service;
 import com.project.ecommerce.dto.request.OrderRequest;
 import com.project.ecommerce.dto.response.OrderResponse;
 import com.project.ecommerce.entity.*;
-import com.project.ecommerce.enums.OrderStatus;
-import com.project.ecommerce.enums.PaymentMethod;
-import com.project.ecommerce.enums.PaymentStatus;
-import com.project.ecommerce.enums.UserRole;
+import com.project.ecommerce.enums.*;
 import com.project.ecommerce.exception.IllegalArgumentException;
 import com.project.ecommerce.exception.NotFoundException;
 import com.project.ecommerce.mapper.AddressMapper;
@@ -39,6 +36,7 @@ public class OrderService {
     private final OrderItemMapper orderItemMapper;
     private final PaymentMapper paymentMapper;
     private final OrderMapper orderMapper;
+    private final UserItemInteractionService userItemInteractionService;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -65,7 +63,6 @@ public class OrderService {
                 .totalPrice(BigDecimal.ZERO)
                 .build();
         orderRepository.save(order);
-
         PaymentMethod paymentMethod = parsePaymentMethod(orderRequest.getPaymentMethod());
 
         // Process order items and update stock
@@ -79,6 +76,7 @@ public class OrderService {
 
             product.setStock(product.getStock() - itemRequest.getQuantity());
             productRepository.save(product);
+            userItemInteractionService.logInteraction(user, product, InteractionType.PURCHASE);
 
             return OrderItem.builder()
                     .order(order)
@@ -89,7 +87,6 @@ public class OrderService {
         }).toList();
 
         orderItemRepository.saveAll(orderItems);
-
         BigDecimal total = orderItems.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

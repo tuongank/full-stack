@@ -3,6 +3,8 @@ package com.project.ecommerce.service;
 import com.project.ecommerce.dto.response.ProductResponse;
 import com.project.ecommerce.entity.Category;
 import com.project.ecommerce.entity.Product;
+import com.project.ecommerce.entity.User;
+import com.project.ecommerce.enums.InteractionType;
 import com.project.ecommerce.exception.NotFoundException;
 import com.project.ecommerce.mapper.ProductMapper;
 import com.project.ecommerce.repository.CategoryRepository;
@@ -24,6 +26,8 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final CloudinaryService cloudinaryService;
     private final ProductMapper productMapper;
+    private final UserItemInteractionService userItemInteractionService;
+    private final UserService userService;
 
     @Transactional
     public ProductResponse createProduct(Long CategoryId, MultipartFile image, String name, String description, BigDecimal price, Integer stock) {
@@ -96,7 +100,8 @@ public class ProductService {
     public ProductResponse getProductById(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
-
+        User user = userService.getLoggedInUser();
+        userItemInteractionService.logInteraction(user, product, InteractionType.VIEW);
         return productMapper.toProductResponse(product);
     }
 

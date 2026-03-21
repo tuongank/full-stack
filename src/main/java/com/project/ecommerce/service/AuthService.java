@@ -12,7 +12,6 @@ import com.project.ecommerce.enums.UserRole;
 import com.project.ecommerce.exception.NotFoundException;
 import com.project.ecommerce.repository.UserRepository;
 import com.project.ecommerce.security.JwtService;
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final MailConfiguration  mailConfiguration;
     private final VerificationCodeGenerator verificationCodeGenerator;
+    private final UserProfileService userProfileService;
 
     @Value("${app.verification.code.length}")
     private int codeLength;
@@ -87,6 +87,7 @@ public class AuthService {
                 .role(UserRole.USER)
                 .build();
         userRepository.save(user);
+        userProfileService.createDefaultProfileIfAbsent(user);
 
         try {
             // Send verification email
