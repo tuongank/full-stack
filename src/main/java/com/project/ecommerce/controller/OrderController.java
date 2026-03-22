@@ -29,12 +29,31 @@ public class OrderController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<ApiResponse<List<OrderResponse>>> getUserOrders(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getUserOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         Page<OrderResponse> orderResponse = orderService.getUserOrders(page, size);
         ApiResponse<List<OrderResponse>> response = ApiResponse.<List<OrderResponse>>builder()
                 .status(200)
-                .message("Order updated successfully")
+                .message("User orders retrieved successfully")
                 .data(orderResponse.getContent())
+                .totalPages(orderResponse.getTotalPages())
+                .totalElements(orderResponse.getTotalElements())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/all")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getAllOrdersAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        Page<OrderResponse> orderPage = orderService.getAllOrders(page, size);
+        ApiResponse<List<OrderResponse>> response = ApiResponse.<List<OrderResponse>>builder()
+                .status(200)
+                .message("All orders retrieved successfully")
+                .data(orderPage.getContent())
+                .totalPages(orderPage.getTotalPages())
+                .totalElements(orderPage.getTotalElements())
                 .build();
         return ResponseEntity.ok(response);
     }

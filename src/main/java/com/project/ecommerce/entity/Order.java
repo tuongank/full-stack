@@ -32,7 +32,7 @@ public class Order {
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(50)")
     private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)

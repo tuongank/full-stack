@@ -8,5 +8,5 @@ public enum OrderStatus {
     CANCELLED,
     RETURN_REQUESTED,
     RETURNED,
-    REFUNDED
+    PROCESSING
 }

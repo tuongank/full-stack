@@ -131,6 +131,13 @@ public class OrderService {
         return orders.map(orderMapper::toOrderResponse);
     }
 
+    public Page<OrderResponse> getAllOrders(int page, int size) {
+        Page<Order> orders = orderRepository.findAll(
+                PageRequest.of(page, size, org.springframework.data.domain.Sort.by("createdAt").descending())
+        );
+        return orders.map(orderMapper::toOrderResponse);
+    }
+
     public OrderResponse getOrderById(Long orderId) {
         User user = userService.getLoggedInUser();
         Order order = orderRepository.findById(orderId)
