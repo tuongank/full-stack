@@ -22,12 +22,13 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestParam Long categoryId,
-                                                                    @RequestParam("image") MultipartFile image,
-                                                                    @RequestParam String name,
-                                                                    @RequestParam String description,
-                                                                    @RequestParam BigDecimal price,
-                                                                    @RequestParam Integer stock) {
-        ProductResponse productResponse = productService.createProduct(categoryId, image, name, description, price, stock);
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam Integer stock) {
+        ProductResponse productResponse = productService.createProduct(categoryId, image, name, description, price,
+                stock);
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status(201)
                 .message("Product created successfully")
@@ -37,7 +38,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Page<ProductResponse> productResponsePage = productService.getAllProducts(page, size);
         ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
                 .status(200)
@@ -50,7 +52,8 @@ public class ProductController {
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategory(@PathVariable Long categoryId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategory(@PathVariable Long categoryId,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<ProductResponse> productResponse = productService.getProductsByCategory(categoryId, page, size);
         ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
                 .status(200)
@@ -75,13 +78,14 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id,
-                                                                    @RequestParam Long categoryId,
-                                                                    @RequestParam(required = false) MultipartFile image,
-                                                                    @RequestParam String name,
-                                                                    @RequestParam String description,
-                                                                    @RequestParam BigDecimal price,
-                                                                    @RequestParam Integer stock) {
-        ProductResponse productResponse = productService.updateProduct(id, categoryId, image, name, description, price, stock);
+            @RequestParam Long categoryId,
+            @RequestParam(required = false) MultipartFile image,
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam BigDecimal price,
+            @RequestParam Integer stock) {
+        ProductResponse productResponse = productService.updateProduct(id, categoryId, image, name, description, price,
+                stock);
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .status(200)
                 .message("Product updated successfully")
@@ -101,7 +105,8 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> searchProducts(@RequestParam String product, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> searchProducts(@RequestParam String product,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         Page<ProductResponse> productResponsePage = productService.searchProductByName(product, page, size);
         ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
                 .status(200)
@@ -114,7 +119,8 @@ public class ProductController {
     }
 
     @GetMapping("/recommendations/hybrid")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getHybridRecommendations(@RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getHybridRecommendations(
+            @RequestParam(defaultValue = "10") int limit) {
         List<ProductResponse> products = recommendationService.getHybridRecommendations(limit);
         ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
                 .status(200)
