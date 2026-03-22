@@ -29,6 +29,8 @@ public class AddressService {
 
         Address address = Address.builder()
                 .user(user)
+                .receiverName(request.getFullName())
+                .phone(request.getPhone())
                 .street(request.getStreet())
                 .city(request.getCity())
                 .district(request.getDistrict())
@@ -47,7 +49,31 @@ public class AddressService {
 
     public void deleteAddress(Long addressId) {
         User user = userService.getLoggedInUser();
-        Address address = addressRepository.findByIdAndUserId(addressId, user.getId()).orElseThrow(() -> new RuntimeException("Address not found"));
+        Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Address not found"));
         addressRepository.delete(address);
+    }
+
+    public AddressResponse updateAddress(Long addressId, AddressRequest request) {
+        User user = userService.getLoggedInUser();
+        Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Address not found"));
+
+        if (request.getIsDefault() != null && request.getIsDefault()) {
+            List<Address> userAddresses = addressRepository.findByUserId(user.getId());
+            userAddresses.forEach(a -> a.setIsDefault(false));
+            addressRepository.saveAll(userAddresses);
+        }
+
+        address.setReceiverName(request.getFullName());
+        address.setPhone(request.getPhone());
+        address.setStreet(request.getStreet());
+        address.setCity(request.getCity());
+        address.setDistrict(request.getDistrict());
+        address.setWard(request.getWard());
+        address.setIsDefault(request.getIsDefault() != null ? request.getIsDefault() : false);
+
+        addressRepository.save(address);
+        return addressMapper.toAddressResponse(address);
     }
 }

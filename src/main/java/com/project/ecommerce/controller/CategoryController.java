@@ -3,6 +3,7 @@ package com.project.ecommerce.controller;
 import com.project.ecommerce.dto.request.CategoryRequest;
 import com.project.ecommerce.dto.response.ApiResponse;
 import com.project.ecommerce.dto.response.CategoryResponse;
+import com.project.ecommerce.dto.response.ProductResponse;
 import com.project.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,17 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long categoryId) {
+        CategoryResponse categoryResponse = categoryService.getCategoryById(categoryId);
+        ApiResponse<CategoryResponse> response = ApiResponse.<CategoryResponse>builder()
+                .status(200)
+                .message("Category retrieved successfully")
+                .data(categoryResponse)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable Long categoryId, @RequestBody @Valid CategoryRequest categoryRequest) {
         CategoryResponse categoryResponse = categoryService.updateCategory(categoryId, categoryRequest);
@@ -71,6 +83,22 @@ public class CategoryController {
         ApiResponse<?> response = ApiResponse.builder()
                 .status(200)
                 .message("Category deleted successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{categoryId}/products")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductResponse> responses = categoryService.getProductsByCategory(categoryId, page, size);
+        ApiResponse<List<ProductResponse>> response = ApiResponse.<List<ProductResponse>>builder()
+                .status(200)
+                .message("Products retrieved successfully")
+                .data(responses.getContent())
+                .totalPages(responses.getTotalPages())
+                .totalElements(responses.getTotalElements())
                 .build();
         return ResponseEntity.ok(response);
     }

@@ -24,6 +24,7 @@ public class Address {
     private Long id;
 
     private String receiverName;
+    private String phone;
     private String street;
     private String ward;
     private String district;

@@ -47,4 +47,15 @@ public class AddressController {
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<AddressResponse>> updateAddress(@PathVariable Long id, @RequestBody AddressRequest request) {
+        AddressResponse addressResponse = addressService.updateAddress(id, request);
+        ApiResponse<AddressResponse> apiResponse = ApiResponse.<AddressResponse>builder()
+                .status(200)
+                .message("Address updated successfully")
+                .data(addressResponse)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 }

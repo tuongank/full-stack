@@ -2,14 +2,9 @@ package com.project.ecommerce.entity;
 
 import com.project.ecommerce.enums.InteractionType;
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_item_interactions")
