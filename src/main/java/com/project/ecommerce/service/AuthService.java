@@ -57,10 +57,31 @@ public class AuthService {
             throw new IllegalStateException("Account not verified. Please verify your account before logging in.");
         }
 
-        // Generate JWT token
-        String token = jwtService.generateToken(user);
+        String accessToken  = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
         return AuthResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole().name())
+                .build();
+    }
+
+    /**
+     * Validate a refresh token and issue a new access token.
+     * Throws if the refresh token is invalid or expired.
+     */
+    public AuthResponse refreshAccessToken(String refreshToken) {
+        if (jwtService.isTokenExpired(refreshToken)) {
+            throw new IllegalStateException("Refresh token has expired. Please log in again.");
+        }
+        String email = jwtService.getEmailFromToken(refreshToken);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        String newAccessToken  = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+        return AuthResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .role(user.getRole().name())
                 .build();
     }

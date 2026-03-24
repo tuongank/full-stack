@@ -14,4 +14,6 @@ public class OrderItemResponse {
     private String productImage;
     private Integer quantity;
     private BigDecimal price;
+    /** True if the currently logged-in user has already submitted a review for this product */
+    private boolean hasReviewed;
 }

@@ -100,8 +100,15 @@ public class ProductService {
     public ProductResponse getProductById(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
-        User user = userService.getLoggedInUser();
-        userItemInteractionService.logInteraction(user, product, InteractionType.VIEW);
+
+        // Only log VIEW interaction for authenticated users; skip silently for guests
+        try {
+            User user = userService.getLoggedInUser();
+            userItemInteractionService.logInteraction(user, product, InteractionType.VIEW);
+        } catch (Exception ignored) {
+            // Anonymous user — no interaction to log
+        }
+
         return productMapper.toProductResponse(product);
     }
 

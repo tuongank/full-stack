@@ -21,6 +21,9 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
+
     private SecretKey secretKey;
 
     @PostConstruct
@@ -28,12 +31,22 @@ public class JwtService {
         secretKey = new SecretKeySpec(signerKey.getBytes(), "HmacSHA256");
     }
 
+    /** Access token — short-lived (default 1 hour) */
     public String generateToken(User user) {
+        return buildToken(user, expiration);
+    }
+
+    /** Refresh token — long-lived (default 7 days) */
+    public String generateRefreshToken(User user) {
+        return buildToken(user, refreshExpiration);
+    }
+
+    private String buildToken(User user, long ttl) {
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("role", user.getRole().name())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + ttl))
                 .signWith(secretKey)
                 .compact();
     }
@@ -56,8 +69,12 @@ public class JwtService {
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
-        Date expirationDate = getClaimFromToken(token, Claims::getExpiration);
-        return expirationDate.before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expirationDate = getClaimFromToken(token, Claims::getExpiration);
+            return expirationDate.before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 }

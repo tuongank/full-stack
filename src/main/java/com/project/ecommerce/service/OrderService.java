@@ -37,6 +37,7 @@ public class OrderService {
     private final PaymentMapper paymentMapper;
     private final OrderMapper orderMapper;
     private final UserItemInteractionService userItemInteractionService;
+    private final com.project.ecommerce.repository.ReviewRepository reviewRepository;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -145,7 +146,14 @@ public class OrderService {
         if (!order.getUser().getId().equals(user.getId()) && user.getRole() != UserRole.ADMIN) {
             throw new IllegalArgumentException("You do not have permission to view this order");
         }
-        return orderMapper.toOrderResponse(order);
+        OrderResponse response = orderMapper.toOrderResponse(order);
+        // Populate hasReviewed for each order item
+        if (response.getOrderItems() != null) {
+            response.getOrderItems().forEach(item ->
+                    item.setHasReviewed(reviewRepository.existsByUserIdAndProductId(user.getId(), item.getProductId()))
+            );
+        }
+        return response;
     }
 
     @Transactional
