@@ -58,7 +58,7 @@ public class AuthService {
             throw new IllegalStateException("Account not verified. Please verify your account before logging in.");
         }
 
-        String accessToken  = jwtService.generateToken(user);
+        String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         return AuthResponse.builder()
                 .token(accessToken)
@@ -78,7 +78,7 @@ public class AuthService {
         String email = jwtService.getEmailFromToken(refreshToken);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        String newAccessToken  = jwtService.generateToken(user);
+        String newAccessToken = jwtService.generateToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
         return AuthResponse.builder()
                 .token(newAccessToken)
@@ -114,7 +114,8 @@ public class AuthService {
 
         try {
             // Send verification email
-            mailService.sendAnEmail(user.getEmail(), "Verify your account", mailTemplate.verificationCode(code, expiryMinutes));
+            mailService.sendAnEmail(user.getEmail(), "Verify your account",
+                    mailTemplate.verificationCode(code, expiryMinutes));
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -129,7 +130,8 @@ public class AuthService {
     }
 
     public void verifyRegistrationCode(VerifyCodeRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Email is incorrect"));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("Email is incorrect"));
 
         if (Boolean.TRUE.equals(user.getVerified())) {
             throw new IllegalStateException("User already verified");
@@ -183,8 +185,12 @@ public class AuthService {
         user.setLastVerificationSentAt(LocalDateTime.now());
         user.setVerificationAttempts(0);
         userRepository.save(user);
-
-        mailService.sendAnEmail(user.getEmail(), "Verify your account", mailTemplate.verificationCode(code, expiryMinutes));
+        try {
+            mailService.sendAnEmail(user.getEmail(), "Verify your account",
+                    mailTemplate.verificationCode(code, expiryMinutes));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     public void forgotPassword(String email) {
@@ -195,8 +201,13 @@ public class AuthService {
         user.setVerificationCode(code);
         user.setVerificationExpiry(LocalDateTime.now().plusMinutes(expiryMinutes));
         user.setVerificationAttempts(0);
-
-        mailService.sendAnEmail(user.getEmail(), "Reset password", mailTemplate.forgotPassword(code, expiryMinutes));
+        userRepository.save(user);
+        try {
+            mailService.sendAnEmail(user.getEmail(), "Reset password",
+                    mailTemplate.forgotPassword(code, expiryMinutes));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     public void resetPassword(ResetPasswordRequest request) {
@@ -217,6 +228,7 @@ public class AuthService {
 
         if (!user.getVerificationCode().equals(request.getCode())) {
             user.setVerificationAttempts(user.getVerificationAttempts() + 1);
+            userRepository.save(user);
             throw new IllegalStateException("Mã xác thực không chính xác");
         }
 

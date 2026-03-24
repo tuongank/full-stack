@@ -1,5 +1,6 @@
 package com.project.ecommerce.service;
 
+import com.project.ecommerce.configuration.MailTemplate;
 import com.project.ecommerce.dto.request.OrderRequest;
 import com.project.ecommerce.dto.response.OrderResponse;
 import com.project.ecommerce.entity.*;
@@ -38,6 +39,8 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final UserItemInteractionService userItemInteractionService;
     private final com.project.ecommerce.repository.ReviewRepository reviewRepository;
+    private final MailService mailService;
+    private final MailTemplate mailTemplate;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
@@ -103,6 +106,18 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
         log.info("Order created: {}", savedOrder.getId());
+
+        // Send order confirmation email
+        try {
+            String emailContent = mailTemplate.orderSuccess(
+                    user.getName() != null ? user.getName() : user.getEmail(),
+                    orderItems,
+                    total
+            );
+            mailService.sendAnEmail(user.getEmail(), "Xác nhận đơn hàng - BeautyMed", emailContent);
+        } catch (Exception e) {
+            log.error("Failed to send order confirmation email: {}", e.getMessage());
+        }
 
         return OrderResponse.builder()
                 .id(savedOrder.getId())
