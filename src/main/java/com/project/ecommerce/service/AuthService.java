@@ -1,6 +1,6 @@
 package com.project.ecommerce.service;
 
-import com.project.ecommerce.configuration.MailConfiguration;
+import com.project.ecommerce.configuration.MailTemplate;
 import com.project.ecommerce.configuration.VerificationCodeGenerator;
 import com.project.ecommerce.dto.request.AuthRequest;
 import com.project.ecommerce.dto.request.RegisterRequest;
@@ -30,9 +30,10 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MailConfiguration  mailConfiguration;
+    private final MailService mailService;
     private final VerificationCodeGenerator verificationCodeGenerator;
     private final UserProfileService userProfileService;
+    private final MailTemplate mailTemplate;
 
     @Value("${app.verification.code.length}")
     private int codeLength;
@@ -113,7 +114,7 @@ public class AuthService {
 
         try {
             // Send verification email
-            mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+            mailService.sendAnEmail(user.getEmail(), "Verify your account", mailTemplate.verificationCode(code, expiryMinutes));
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -183,7 +184,7 @@ public class AuthService {
         user.setVerificationAttempts(0);
         userRepository.save(user);
 
-        mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+        mailService.sendAnEmail(user.getEmail(), "Verify your account", mailTemplate.verificationCode(code, expiryMinutes));
     }
 
     public void forgotPassword(String email) {
@@ -195,7 +196,7 @@ public class AuthService {
         user.setVerificationExpiry(LocalDateTime.now().plusMinutes(expiryMinutes));
         user.setVerificationAttempts(0);
 
-        mailConfiguration.sendVerificationMail(user.getEmail(), code, expiryMinutes);
+        mailService.sendAnEmail(user.getEmail(), "Reset password", mailTemplate.forgotPassword(code, expiryMinutes));
     }
 
     public void resetPassword(ResetPasswordRequest request) {
