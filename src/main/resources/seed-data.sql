@@ -21,21 +21,21 @@ INSERT INTO categories (id, name, created_at) VALUES
 -- ============================================================
 -- 2. USERS (12 users, id bắt đầu từ 2 vì admin=1)
 -- Password cho tất cả users: "password123"
--- BCrypt hash: $2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO
+-- BCrypt hash: $2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm
 -- ============================================================
 INSERT INTO users (id, name, email, password, phone_number, role, verified, verification_attempts, created_date) VALUES
-(2,  'Nguyễn Thị Mai',    'mai.nguyen@gmail.com',    '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0901234567', 'USER', true, 0, NOW()),
-(3,  'Trần Văn Hùng',     'hung.tran@gmail.com',     '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0912345678', 'USER', true, 0, NOW()),
-(4,  'Lê Thị Hương',      'huong.le@gmail.com',      '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0923456789', 'USER', true, 0, NOW()),
-(5,  'Phạm Minh Tuấn',    'tuan.pham@gmail.com',     '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0934567890', 'USER', true, 0, NOW()),
-(6,  'Hoàng Thị Lan',     'lan.hoang@gmail.com',     '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0945678901', 'USER', true, 0, NOW()),
-(7,  'Võ Đức Thắng',      'thang.vo@gmail.com',      '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0956789012', 'USER', true, 0, NOW()),
-(8,  'Đặng Thị Ngọc',     'ngoc.dang@gmail.com',     '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0967890123', 'USER', true, 0, NOW()),
-(9,  'Bùi Quang Hải',     'hai.bui@gmail.com',       '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0978901234', 'USER', true, 0, NOW()),
-(10, 'Ngô Thanh Tâm',     'tam.ngo@gmail.com',       '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0989012345', 'USER', true, 0, NOW()),
-(11, 'Dương Thị Thảo',    'thao.duong@gmail.com',    '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0990123456', 'USER', true, 0, NOW()),
-(12, 'Lý Hoàng Nam',      'nam.ly@gmail.com',        '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0901122334', 'USER', true, 0, NOW()),
-(13, 'Trịnh Thị Yến',     'yen.trinh@gmail.com',     '$2a$10$dXJ3SW6G7P50lGmMQgel2uGn0mPFb4EC0YhMhZTp7gYPOh85OXPtO', '0912233445', 'USER', true, 0, NOW());
+(2,  'Nguyễn Thị Mai',    'mai.nguyen@gmail.com',    '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0901234567', 'USER', true, 0, NOW()),
+(3,  'Trần Văn Hùng',     'hung.tran@gmail.com',     '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0912345678', 'USER', true, 0, NOW()),
+(4,  'Lê Thị Hương',      'huong.le@gmail.com',      '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0923456789', 'USER', true, 0, NOW()),
+(5,  'Phạm Minh Tuấn',    'tuan.pham@gmail.com',     '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0934567890', 'USER', true, 0, NOW()),
+(6,  'Hoàng Thị Lan',     'lan.hoang@gmail.com',     '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0945678901', 'USER', true, 0, NOW()),
+(7,  'Võ Đức Thắng',      'thang.vo@gmail.com',      '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0956789012', 'USER', true, 0, NOW()),
+(8,  'Đặng Thị Ngọc',     'ngoc.dang@gmail.com',     '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0967890123', 'USER', true, 0, NOW()),
+(9,  'Bùi Quang Hải',     'hai.bui@gmail.com',       '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0978901234', 'USER', true, 0, NOW()),
+(10, 'Ngô Thanh Tâm',     'tam.ngo@gmail.com',       '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0989012345', 'USER', true, 0, NOW()),
+(11, 'Dương Thị Thảo',    'thao.duong@gmail.com',    '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0990123456', 'USER', true, 0, NOW()),
+(12, 'Lý Hoàng Nam',      'nam.ly@gmail.com',        '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0901122334', 'USER', true, 0, NOW()),
+(13, 'Trịnh Thị Yến',     'yen.trinh@gmail.com',     '$2a$10$0u/21Db5sTkvklwTUdDEBuHk/0CLTkpRmPJSm1.dfWJZZoYC3cCZm', '0912233445', 'USER', true, 0, NOW());
 
 -- ============================================================
 -- 3. USER PROFILES (skin profiles cho Content-Based filtering)
