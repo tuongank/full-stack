@@ -5,5 +5,6 @@ public enum InteractionType {
     ADD_TO_CART,
     REMOVE_FROM_CART,
     PURCHASE,
-    REVIEW
+    REVIEW,
+    WISHLIST
 }

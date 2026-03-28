@@ -9,8 +9,11 @@ import com.project.ecommerce.dto.request.VerifyCodeRequest;
 import com.project.ecommerce.dto.response.AuthResponse;
 import com.project.ecommerce.dto.response.RegisterResponse;
 import com.project.ecommerce.entity.User;
+import com.project.ecommerce.entity.UserProfile;
 import com.project.ecommerce.enums.UserRole;
+import com.project.ecommerce.enums.SkinType;
 import com.project.ecommerce.exception.NotFoundException;
+import com.project.ecommerce.repository.UserProfileRepository;
 import com.project.ecommerce.repository.UserRepository;
 import com.project.ecommerce.security.JwtService;
 import jakarta.transaction.Transactional;
@@ -33,6 +36,7 @@ public class AuthService {
     private final MailService mailService;
     private final VerificationCodeGenerator verificationCodeGenerator;
     private final UserProfileService userProfileService;
+    private final UserProfileRepository userProfileRepository;
     private final MailTemplate mailTemplate;
 
     @Value("${app.verification.code.length}")
@@ -110,7 +114,18 @@ public class AuthService {
                 .role(UserRole.USER)
                 .build();
         userRepository.save(user);
-        userProfileService.createDefaultProfileIfAbsent(user);
+
+        UserProfile userProfile = UserProfile.builder()
+                .user(user)
+                .skinType(request.getSkinType() != null ? request.getSkinType() : SkinType.NORMAL)
+                .skinConcerns(request.getSkinConcerns() != null ? new java.util.HashSet<>(request.getSkinConcerns())
+                        : new java.util.HashSet<>())
+                .avoidIngredients(
+                        request.getAvoidIngredients() != null ? new java.util.HashSet<>(request.getAvoidIngredients())
+                                : new java.util.HashSet<>())
+                .age(request.getAge())
+                .build();
+        userProfileRepository.save(userProfile);
 
         try {
             // Send verification email
@@ -129,7 +144,8 @@ public class AuthService {
                 .build();
     }
 
-    public void verifyRegistrationCode(VerifyCodeRequest request) {
+    @Transactional
+    public AuthResponse verifyRegistrationCode(VerifyCodeRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException("Email is incorrect"));
 
@@ -161,6 +177,14 @@ public class AuthService {
         user.setVerificationExpiry(null);
         user.setVerificationAttempts(0);
         userRepository.save(user);
+
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        return AuthResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole().name())
+                .build();
     }
 
     public void resendVerificationCode(String email) {

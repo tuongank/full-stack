@@ -44,13 +44,13 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse<Void>> verifyCode(@RequestBody @Valid VerifyCodeRequest request) {
-        authService.verifyRegistrationCode(request);
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
+    public ResponseEntity<ApiResponse<AuthResponse>> verifyAccount(@RequestBody @Valid VerifyCodeRequest request) {
+        AuthResponse response = authService.verifyRegistrationCode(request);
+        return ResponseEntity.ok(ApiResponse.<AuthResponse>builder()
                 .status(200)
-                .message("Verification successful")
-                .build();
-        return ResponseEntity.ok(response);
+                .message("Account verified successfully")
+                .data(response)
+                .build());
     }
 
     @PostMapping("/resend-code")

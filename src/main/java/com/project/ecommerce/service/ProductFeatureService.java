@@ -41,6 +41,7 @@ public class ProductFeatureService {
                 .usageTime(request.getUsageTime())
                 .phLevel(request.getPhLevel())
                 .pregnancySafe(request.getPregnancySafe())
+                .brand(request.getBrand())
                 .build();
 
         ProductFeature savedFeature = productFeatureRepository.save(productFeature);
@@ -84,6 +85,10 @@ public class ProductFeatureService {
             productFeature.setPregnancySafe(request.getPregnancySafe());
         }
 
+        if (request.getBrand() != null) {
+            productFeature.setBrand(request.getBrand());
+        }
+
         ProductFeature updatedFeature = productFeatureRepository.save(productFeature);
         return toResponse(updatedFeature);
     }
@@ -122,6 +127,7 @@ public class ProductFeatureService {
                 .usageTime(feature.getUsageTime())
                 .phLevel(feature.getPhLevel())
                 .pregnancySafe(feature.getPregnancySafe())
+                .brand(feature.getBrand())
                 .build();
     }
 

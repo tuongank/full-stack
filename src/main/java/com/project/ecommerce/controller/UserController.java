@@ -1,9 +1,12 @@
 package com.project.ecommerce.controller;
 
 import com.project.ecommerce.dto.response.ApiResponse;
+import com.project.ecommerce.dto.response.UserDetailResponse;
 import com.project.ecommerce.dto.response.UserResponse;
 import com.project.ecommerce.entity.User;
+import com.project.ecommerce.entity.UserProfile;
 import com.project.ecommerce.service.UserService;
+import com.project.ecommerce.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserProfileRepository userProfileRepository;
 
     @GetMapping("/by-email")
     public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@RequestParam String email) {
@@ -45,12 +49,28 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> getLoggedInUser() {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getLoggedInUser() {
         User user = userService.getLoggedInUser();
-        ApiResponse<User> response = ApiResponse.<User>builder()
+        UserProfile profile = userProfileRepository.findByUserId(user.getId()).orElse(null);
+        
+        UserDetailResponse data = UserDetailResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
+                .skinType(profile != null ? profile.getSkinType() : null)
+                .skinConcerns(profile != null ? profile.getSkinConcerns() : null)
+                .avoidIngredients(profile != null ? profile.getAvoidIngredients() : null)
+                .age(profile != null ? profile.getAge() : null)
+                .createdAt(user.getCreatedDate())
+                .updatedAt(user.getUpdatedDate())
+                .build();
+                
+        ApiResponse<UserDetailResponse> response = ApiResponse.<UserDetailResponse>builder()
                 .status(200)
                 .message("Logged in user retrieved successfully")
-                .data(user)
+                .data(data)
                 .build();
         return ResponseEntity.ok(response);
     }

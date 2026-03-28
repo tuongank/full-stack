@@ -20,4 +20,5 @@ public class ProductFeatureResponse {
     private UsageTime usageTime;
     private Double phLevel;
     private Boolean pregnancySafe;
+    private String brand;
 }

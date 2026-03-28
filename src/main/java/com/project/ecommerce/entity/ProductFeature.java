@@ -77,5 +77,8 @@ public class ProductFeature {
 
     @Column(name = "pregnancy_safe")
     private Boolean pregnancySafe;
+
+    @Column(length = 100)
+    private String brand;
 }
 
