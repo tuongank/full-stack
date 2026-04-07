@@ -1,5 +1,6 @@
 package com.project.ecommerce.controller;
 
+import com.project.ecommerce.dto.request.ChangePasswordRequest;
 import com.project.ecommerce.dto.response.ApiResponse;
 import com.project.ecommerce.dto.response.UserDetailResponse;
 import com.project.ecommerce.dto.response.UserResponse;
@@ -11,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -75,4 +79,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(request);
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .status(200)
+                .message("Đổi mật khẩu thành công")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }
